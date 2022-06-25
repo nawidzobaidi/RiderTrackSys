@@ -1,0 +1,81 @@
+<style>
+#customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 50%;
+}
+
+#customers td, #customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+</style>
+<div id="map">
+
+<table id="customers">
+  <tr>
+    <th>Rider ID</th>
+    <th>Lang</th>
+    <th>Lat</th>
+    <th>Time</th>
+  </tr>
+  <tr>
+    <td>999</td>
+        <td>69.156864</td>
+        <td>34.5276416 </td>
+        <td>2022-06-25 17:56:52</td>
+  </tr>
+  
+  
+</table>
+<h1>GIS info retrived in 10ms interval from server</h1>
+</div>
+ 
+<script>
+var track = {
+  // (B) PROPERTIES
+  map : null, // HTML map
+  delay : 10000, // Delay between location refresh
+ 
+  // (C) INIT
+  init : () => {
+    track.map = document.getElementById("map");
+    track.show();
+    setInterval(track.show, track.delay);
+  },
+ 
+  //GET DATA FROM SERVER AND UPDATE MAP
+  show : () => {
+    //DATA
+    var data = new FormData();
+    data.append("req", "getAll");
+ 
+    //AJAX FETCH
+    fetch("ajax-track.php", { method:"POST", body:data })
+    .then(res => res.json()).then((res) => {
+      if (res.status==1) { for (let rider of res.message) {
+        
+        var row = document.createElement("div");
+        row.innerHTML = "Rider ID " + rider.rider_id +
+                      " | Lng " + rider.track_lng +
+                      " | Lat " + rider.track_lat +
+                      " | Time " + rider.track_time;
+        track.map.appendChild(row);
+      }} else { track.map.innerHTML = res.message; }
+    }).catch((err) => { console.error(err); });
+  }
+};
+window.addEventListener("DOMContentLoaded", track.init);
+</script>
